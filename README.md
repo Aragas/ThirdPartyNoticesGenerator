@@ -1,14 +1,14 @@
 # dotnet-thirdpartynotices
 
-[![NuGet](https://img.shields.io/nuget/v/dotnet-thirdpartynotices.svg)](https://www.nuget.org/packages/dotnet-thirdpartynotices/) (currently outdated)
-
-You can download the latest builds [here](https://github.com/bugproof/DotnetThirdPartyNotices/actions) or build it yourself
+- [NuGet](https://github.com/bugproof/DotnetThirdPartyNotices/packages/406726)
 
 ## Example of a generated file
 
 ![example](https://i.imgur.com/rsqwaWP.png)
 
 ## Installation
+
+[Configure dotnet CLI for use with github packages](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-dotnet-cli-for-use-with-github-packages)
 
 ```
 dotnet tool install -g dotnet-thirdpartynotices
