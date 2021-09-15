@@ -7,10 +7,11 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-thirdpartynotices</ToolCommandName>
     <Version>0.2.1</Version>
-    <PackageId>dotnet-thirdpartynotices</PackageId>
+    <PackageId>DotnetThirdPartyNotices</PackageId>
     <RootNamespace>DotnetThirdPartyNotices</RootNamespace>
     <AssemblyName>DotnetThirdPartyNotices</AssemblyName>
     <NoWarn>1591</NoWarn>
+    <PackageVersion>0.2.2</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
