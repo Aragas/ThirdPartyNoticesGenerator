@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-var rootCommand = new RootCommand
+var rootCommand = new RootCommand("A tool to generate file with third party legal notices for .NET projects")
 {
     new Argument<string>("argument", "Path of the directory to look for projects (optional)"),
     new Option<string>(
