@@ -7,6 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-thirdpartynotices</ToolCommandName>
     <PackageId>DotnetThirdPartyNotices</PackageId>
+    <Description>A .NET tool to generate file with third party legal notices</Description>
     <PackageVersion>0.2.2</PackageVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
