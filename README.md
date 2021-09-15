@@ -1,17 +1,11 @@
 # dotnet-thirdpartynotices
 
-- [NuGet](https://github.com/bugproof/DotnetThirdPartyNotices/packages/406726)
-
-## Example of a generated file
-
-![example](https://i.imgur.com/rsqwaWP.png)
+[![NuGet](https://img.shields.io/nuget/v/DotnetThirdPartyNotices)](https://www.nuget.org/packages/DotnetThirdPartyNotices/)
 
 ## Installation
 
-[Configure dotnet CLI for use with github packages](https://docs.github.com/en/packages/using-github-packages-with-your-projects-ecosystem/configuring-dotnet-cli-for-use-with-github-packages)
-
 ```
-dotnet tool install -g dotnet-thirdpartynotices
+dotnet tool install -g DotnetThirdPartyNotices
 ```
 
 ## Get started
@@ -41,9 +35,9 @@ dotnet-thirdpartynotices --output-filename "third party notices.txt" <project di
 
 It uses MSBuild to resolve assemblies that should land in the publish folder or release folder. 
 
-For .NET Core projects this is done using `ComputeFilesToPublish` target. 
+For .NET Core and .NET Standard projects this is done using `ComputeFilesToPublish` target. 
 
-For traditional .NET Framework and .NET Standard projects this is done using `ResolveAssemblyReferences` target
+For traditional .NET Framework projects this is done using `ResolveAssemblyReferences` target
 
 ### 2. Try to find license based on the information from .nuspec or FileVersionInfo
 
