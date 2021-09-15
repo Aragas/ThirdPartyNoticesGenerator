@@ -13,20 +13,16 @@ namespace DotnetThirdPartyNotices.Extensions
     {
         // Create instances only once
         private static readonly Lazy<List<ILicenseResolver>> LicenseResolvers =
-            new Lazy<List<ILicenseResolver>>(() =>
-                GetInstancesFromExecutingAssembly<ILicenseResolver>().ToList());
+            new(() => GetInstancesFromExecutingAssembly<ILicenseResolver>().ToList());
 
         private static readonly Lazy<List<ILicenseUriLicenseResolver>> LicenseUriLicenseResolvers =
-            new Lazy<List<ILicenseUriLicenseResolver>>(() =>
-                LicenseResolvers.Value.OfType<ILicenseUriLicenseResolver>().ToList());
+            new(() => LicenseResolvers.Value.OfType<ILicenseUriLicenseResolver>().ToList());
 
         private static readonly Lazy<List<IProjectUriLicenseResolver>> ProjectUriLicenseResolvers =
-            new Lazy<List<IProjectUriLicenseResolver>>(() =>
-                LicenseResolvers.Value.OfType<IProjectUriLicenseResolver>().ToList());
+            new(() => LicenseResolvers.Value.OfType<IProjectUriLicenseResolver>().ToList());
 
         private static readonly Lazy<List<IFileVersionInfoLicenseResolver>> FileVersionInfoLicenseResolvers =
-            new Lazy<List<IFileVersionInfoLicenseResolver>>(() =>
-                LicenseResolvers.Value.OfType<IFileVersionInfoLicenseResolver>().ToList());
+            new(() => LicenseResolvers.Value.OfType<IFileVersionInfoLicenseResolver>().ToList());
 
         private static IEnumerable<T> GetInstancesFromExecutingAssembly<T>() where T : class
         {

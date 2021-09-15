@@ -20,55 +20,51 @@ namespace DotnetThirdPartyNotices.Extensions
 
         public static async Task<Uri> GetRedirectUri(this Uri uri)
         {
-            using (var httpClientHandler = new HttpClientHandler
+            using var httpClientHandler = new HttpClientHandler
             {
                 AllowAutoRedirect = false
-            })
-            using (var httpClient = new HttpClient(httpClientHandler))
+            };
+            using var httpClient = new HttpClient(httpClientHandler);
+            var httpResponseMessage = await httpClient.GetAsync(uri);
+
+            var statusCode = (int)httpResponseMessage.StatusCode;
+
+            if (statusCode < 300 || statusCode > 399)
             {
-                var httpResponseMessage = await httpClient.GetAsync(uri);
-
-                var statusCode = (int)httpResponseMessage.StatusCode;
-
-                if (statusCode < 300 || statusCode > 399)
-                {
-                    return null;
-                }
-
-                var redirectUri = httpResponseMessage.Headers.Location;
-                if (!redirectUri.IsAbsoluteUri)
-                {
-                    redirectUri = new Uri(httpResponseMessage.RequestMessage.RequestUri, redirectUri);
-                }
-
-                return redirectUri;
+                return null;
             }
+
+            var redirectUri = httpResponseMessage.Headers.Location;
+            if (!redirectUri.IsAbsoluteUri)
+            {
+                redirectUri = new Uri(httpResponseMessage.RequestMessage.RequestUri, redirectUri);
+            }
+
+            return redirectUri;
         }
 
         public static async Task<string> GetPlainText(this Uri uri)
         {
-            using (var httpClient = new HttpClient())
+            using var httpClient = new HttpClient();
+            var httpResponseMessage = await httpClient.GetAsync(uri);
+            if (!httpResponseMessage.IsSuccessStatusCode && uri.AbsolutePath.EndsWith(".txt"))
             {
-                var httpResponseMessage = await httpClient.GetAsync(uri);
-                if (!httpResponseMessage.IsSuccessStatusCode && uri.AbsolutePath.EndsWith(".txt"))
-                {
-                    // try without .txt extension
-                    var fixedUri = new UriBuilder(uri);
-                    fixedUri.Path = fixedUri.Path.Remove(fixedUri.Path.Length - 4);
-                    httpResponseMessage = await httpClient.GetAsync(fixedUri.Uri);
-                    if (!httpResponseMessage.IsSuccessStatusCode)
-                    {
-                        return null;
-                    }
-                }
-
-                if (httpResponseMessage.Content.Headers.ContentType.MediaType != "text/plain")
+                // try without .txt extension
+                var fixedUri = new UriBuilder(uri);
+                fixedUri.Path = fixedUri.Path.Remove(fixedUri.Path.Length - 4);
+                httpResponseMessage = await httpClient.GetAsync(fixedUri.Uri);
+                if (!httpResponseMessage.IsSuccessStatusCode)
                 {
                     return null;
                 }
-
-                return await httpResponseMessage.Content.ReadAsStringAsync();
             }
+
+            if (httpResponseMessage.Content.Headers.ContentType.MediaType != "text/plain")
+            {
+                return null;
+            }
+
+            return await httpResponseMessage.Content.ReadAsStringAsync();
         }
     }
 }

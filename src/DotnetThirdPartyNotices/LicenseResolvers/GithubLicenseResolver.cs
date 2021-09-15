@@ -18,10 +18,8 @@ namespace DotnetThirdPartyNotices.LicenseResolvers
 
         async Task<string> IProjectUriLicenseResolver.Resolve(Uri projectUri)
         {
-            using (var githubService = new GithubService())
-            {
-                return await githubService.GetLicenseContentFromRepositoryPath(projectUri.AbsolutePath);
-            }
+            using var githubService = new GithubService();
+            return await githubService.GetLicenseContentFromRepositoryPath(projectUri.AbsolutePath);
         }
     }
 }

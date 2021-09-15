@@ -30,8 +30,8 @@ namespace DotnetThirdPartyNotices.Extensions
             switch (targetFrameworkIdentifier)
             {
                 case TargetFrameworkIdentifiers.NetCore:
-                    return ResolveFilesUsingComputeFilesToPublish(projectInstance);
                 case TargetFrameworkIdentifiers.NetStandard:
+                    return ResolveFilesUsingComputeFilesToPublish(projectInstance);
                 case TargetFrameworkIdentifiers.NetFramework:
                     return ResolveFilesUsingResolveAssemblyReferences(projectInstance);
                 default:
@@ -42,9 +42,9 @@ namespace DotnetThirdPartyNotices.Extensions
         private static IEnumerable<ResolvedFileInfo> ResolveFilesUsingResolveAssemblyReferences(ProjectInstance projectInstance)
         {
             var resolvedFileInfos = new List<ResolvedFileInfo>();
-
+            
             projectInstance.Build("ResolveAssemblyReferences", new ILogger[] { new ConsoleLogger(LoggerVerbosity.Minimal) });
-
+            
             foreach (var item in projectInstance.GetItems("ReferenceCopyLocalPaths"))
             {
                 var assemblyPath = item.EvaluatedInclude;
@@ -56,13 +56,13 @@ namespace DotnetThirdPartyNotices.Extensions
                     SourcePath = assemblyPath,
                     RelativeOutputPath = Path.GetFileName(assemblyPath)
                 };
-
+                
                 if (item.GetMetadataValue("ResolvedFrom") == "{HintPathFromItem}" && item.GetMetadataValue("HintPath").StartsWith("..\\packages"))
                 {
                     var packagePath = Utils.GetPackagePathFromAssemblyPath(assemblyPath);
                     if (packagePath == null)
                         throw new ApplicationException($"Cannot find package path from assembly path ({assemblyPath})");
-
+                    
                     var nuPkgFileName = Directory.GetFiles(packagePath, "*.nupkg", SearchOption.TopDirectoryOnly).Single();
 
                     var nuSpec = NuSpec.FromNupkg(nuPkgFileName);
@@ -88,10 +88,9 @@ namespace DotnetThirdPartyNotices.Extensions
             {
                 var assemblyPath = item.EvaluatedInclude;
 
-                var packageName = item.GetMetadataValue("PackageName");
-                var packageVersion = item.GetMetadataValue("PackageVersion");
-
-                if (string.IsNullOrEmpty(packageName) || string.IsNullOrEmpty(packageVersion))
+                var packageName = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageName" : "NugetPackageId");
+                var packageVersion = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageVersion" : "NugetPackageVersion");
+                if (packageName == string.Empty || packageVersion == string.Empty)
                 {
                     // Skip if it's not a NuGet package
                     continue;

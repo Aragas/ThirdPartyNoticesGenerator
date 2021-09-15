@@ -14,10 +14,8 @@ namespace DotnetThirdPartyNotices.LicenseResolvers
             if (s[0] != "licenses") return null;
 
             var licenseId = s[1];
-            using (var githubService = new GithubService())
-            {
-                return await githubService.GetLicenseContentFromId(licenseId);
-            }
+            using var githubService = new GithubService();
+            return await githubService.GetLicenseContentFromId(licenseId);
         }
     }
 }

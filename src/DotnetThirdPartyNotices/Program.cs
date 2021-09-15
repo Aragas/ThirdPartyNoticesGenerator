@@ -30,7 +30,7 @@ namespace DotnetThirdPartyNotices
         private static async Task Run(string outputFilename, string argument)
         {
             var scanDirectory = argument ?? Directory.GetCurrentDirectory();
-
+            Console.WriteLine(scanDirectory);
             var projectFilePath = Directory.GetFiles(scanDirectory, "*.*", SearchOption.TopDirectoryOnly)
                 .SingleOrDefault(s => s.EndsWith(".csproj") || s.EndsWith(".fsproj"));
             if (projectFilePath == null)
