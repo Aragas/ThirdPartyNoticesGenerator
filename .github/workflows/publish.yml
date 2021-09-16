@@ -15,7 +15,7 @@ jobs:
 
       - name: Publish on version change
         id: publish_nuget
-        uses: rohith/publish-nuget@v2
+        uses: Rebel028/publish-nuget@v2.6.3
         with:
           # Filepath of the project to be packaged, relative to root of repository
           PROJECT_FILE_PATH: src/DotnetThirdPartyNotices/DotnetThirdPartyNotices.csproj
