@@ -7,12 +7,12 @@ using System.Xml.Linq;
 
 namespace DotnetThirdPartyNotices
 {
-    public class NuSpec
+    public record NuSpec
     {
-        public string Id { get; set; }
-        public string Version { get; set; }
-        public string LicenseUrl { get; set; }
-        public string ProjectUrl { get; set; }
+        public string Id { get; init; }
+        public string Version { get; init; }
+        public string LicenseUrl { get; init; }
+        public string ProjectUrl { get; init; }
 
         private static NuSpec FromTextReader(TextReader streamReader)
         {

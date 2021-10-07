@@ -14,25 +14,26 @@ using System.Threading.Tasks;
 
 var rootCommand = new RootCommand("A tool to generate file with third party legal notices for .NET projects")
 {
-    new Argument<string>("argument", "Path of the directory to look for projects (optional)"),
+    new Argument<string>("scan-dir", "Path of the directory to look for projects (optional)"),
     new Option<string>(
         "--output-filename",
         () => "third-party-notices.txt",
-        "Output filename")
+        "Output filename"),
+    new Option<bool>("--copy-to-outdir", () => false, "Copy to output directory in Release configuration")
 };
 
-rootCommand.Handler = CommandHandler.Create<string, string>(async (argument, outputFilename) =>
+rootCommand.Handler = CommandHandler.Create<string, string, bool>(async (scanDir, outputFilename, copyToOutDir) =>
 {
     MSBuildLocator.RegisterDefaults();
 
-    await Run(outputFilename, argument);
+    await Run(scanDir, outputFilename, copyToOutDir);
 });
 
 return await rootCommand.InvokeAsync(args);
 
-static async Task Run(string outputFilename, string argument)
+static async Task Run(string scanDir, string outputFilename, bool copyToOutputDir)
 {
-    var scanDirectory = argument ?? Directory.GetCurrentDirectory();
+    var scanDirectory = scanDir ?? Directory.GetCurrentDirectory();
     Console.WriteLine(scanDirectory);
     var projectFilePath = Directory.GetFiles(scanDirectory, "*.*", SearchOption.TopDirectoryOnly)
         .SingleOrDefault(s => s.EndsWith(".csproj") || s.EndsWith(".fsproj"));
@@ -43,9 +44,11 @@ static async Task Run(string outputFilename, string argument)
     }
 
     var project = new Project(projectFilePath);
+    project.SetProperty("Configuration", "Release");
     project.SetProperty("DesignTimeBuild", "true");
+    
     Console.WriteLine("Resolving files...");
-
+    
     var stopwatch = new Stopwatch();
 
     stopwatch.Start();
@@ -54,7 +57,7 @@ static async Task Run(string outputFilename, string argument)
     var resolvedFiles = project.ResolveFiles().ToList();
 
     Console.WriteLine($"Resolved files count: {resolvedFiles.Count}");
-
+    
     var unresolvedFiles = new List<ResolvedFileInfo>();
 
     foreach (var resolvedFileInfo in resolvedFiles)
@@ -112,9 +115,16 @@ static async Task Run(string outputFilename, string argument)
 
     if (stringBuilder.Length > 0)
     {
+        if (copyToOutputDir)
+        {
+            outputFilename = Path.Combine(
+                Path.Combine(scanDirectory, project.GetPropertyValue("OutDir")),
+                Path.GetFileName(outputFilename));
+        }
+        
         Console.WriteLine($"Writing to {outputFilename}...");
         await File.WriteAllTextAsync(outputFilename, stringBuilder.ToString());
-
+     
         Console.WriteLine($"Done in {stopwatch.ElapsedMilliseconds}ms");
     }
 }
