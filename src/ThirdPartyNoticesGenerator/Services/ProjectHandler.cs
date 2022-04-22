@@ -83,7 +83,7 @@ namespace ThirdPartyNoticesGenerator.Services
                 var assemblyPath = item.EvaluatedInclude;
 
                 var packageName = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageName" : "NugetPackageId").ToLowerInvariant();
-                var packageVersion = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageVersion" : "NugetPackageVersion");
+                var packageVersion = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageVersion" : "NugetPackageVersion").ToLowerInvariant();
                 if (packageName == string.Empty || packageVersion == string.Empty)
                 {
                     // Skip if it's not a NuGet package
