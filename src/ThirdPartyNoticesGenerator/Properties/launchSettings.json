@@ -1,0 +1,20 @@
+{
+  "profiles": {
+      "NonSdkNetFramewrok": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\..\\test\\NonSdkNetFramework"
+    },
+    "SdkNetCore": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\..\\test\\SdkNetCore"
+    },
+    "SdkNetFramework": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\..\\test\\SdkNetFramework"
+    },
+    "SdkNetStandard": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\..\\test\\SdkNetStandard"
+    }
+  }
+}

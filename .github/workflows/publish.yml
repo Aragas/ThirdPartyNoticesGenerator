@@ -1,4 +1,4 @@
-name: Publish to NuGet
+name: Publish
 on:
   push:
     branches:
@@ -8,35 +8,34 @@ jobs:
     name: Build, pack and publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '5.0.x'
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
 
-      - name: Publish on version change
-        id: publish_nuget
-        uses: Rebel028/publish-nuget@v2.6.3
-        with:
-          # Filepath of the project to be packaged, relative to root of repository
-          PROJECT_FILE_PATH: src/DotnetThirdPartyNotices/DotnetThirdPartyNotices.csproj
-          
-          # NuGet package id, used for version detection & defaults to project name
-          PACKAGE_NAME: DotnetThirdPartyNotices
-          
-          # Regex pattern to extract version info in a capturing group
-          VERSION_REGEX: ^\s*<PackageVersion>(.*)<\/PackageVersion>\s*$
-          
-          # Flag to toggle git tagging, enabled by default
-          TAG_COMMIT: false
+    - name: Run _build
+      run: >-
+        dotnet pack src/ThirdPartyNoticesGenerator.sln --configuration Release -o "./packages";
+      shell: pwsh
 
-          # Format of the git tag, [*] gets replaced with actual version
-          # TAG_FORMAT: v*
+    - name: Run _build
+      run: >-
+        dotnet tool install -g Kuinox.NupkgDeterministicator;
+        $build_date = $(git show -s --date=iso-strict --format=%cd);
+        Get-ChildItem "./packages" -Filter *.nupkg | 
+        Foreach-Object {
+          NupkgDeterministicator $_.FullName $build_date
+        }
+      shell: pwsh
 
-          # API key to authenticate with NuGet server
-          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+    - name: Push to NuGet
+      run: dotnet nuget push "./packages/*.nupkg" -k ${{secrets.NUGET_API_KEY}} -s https://www.nuget.org
+      shell: pwsh
 
-          # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-          # NUGET_SOURCE: https://api.nuget.org
-
-          # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
-          # INCLUDE_SYMBOLS: false
+    - name: Push to GPR
+      run: |
+           for f in ./packages/*.nupkg
+           do
+             curl -vX PUT -u "vslee:${{secrets.GITHUB_TOKEN}}" -F package=@$f https://nuget.pkg.github.com/Aragas/
+           done
+      shell: bash
