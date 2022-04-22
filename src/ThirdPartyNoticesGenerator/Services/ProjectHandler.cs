@@ -82,7 +82,7 @@ namespace ThirdPartyNoticesGenerator.Services
             {
                 var assemblyPath = item.EvaluatedInclude;
 
-                var packageName = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageName" : "NugetPackageId");
+                var packageName = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageName" : "NugetPackageId").ToLowerInvariant();
                 var packageVersion = item.GetMetadataValue(item.HasMetadata("PackageName") ? "PackageVersion" : "NugetPackageVersion");
                 if (packageName == string.Empty || packageVersion == string.Empty)
                 {
@@ -95,7 +95,8 @@ namespace ThirdPartyNoticesGenerator.Services
                     throw new ApplicationException($"Cannot find package path from assembly path ({assemblyPath})");
 
                 var relativePath = item.GetMetadataValue("RelativePath");
-                var nuPkgFilePath = Path.Combine(packagePath, $"{packageName}.{packageVersion}.nupkg"); // Directory.GetFiles(packageFolder, "*.nuspec", SearchOption.TopDirectoryOnly).SingleOrDefault();
+                // var nuPkgFilePath = Directory.GetFiles(packageFolder, "*.nuspec", SearchOption.TopDirectoryOnly).SingleOrDefault();
+                var nuPkgFilePath = Path.Combine(packagePath, $"{packageName}.{packageVersion}.nupkg");
                 yield return new Library(assemblyPath, relativePath, nuPkgFilePath);
             }
         }
