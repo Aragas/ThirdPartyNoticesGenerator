@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ThirdPartyNoticesGenerator", "ThirdPartyNoticesGenerator\ThirdPartyNoticesGenerator.csproj", "{052DFD6A-FD20-44C2-9448-0ACFDBFFEFCB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{1FA53C11-E198-4D9D-BE4F-39130F783A63}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{39699F71-F8EC-4F48-8DA6-87A02640C8C2}"
 EndProject

@@ -11,6 +11,7 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ThirdPartyNoticesGenerator.Extensions;
 using ThirdPartyNoticesGenerator.Options;
 using ThirdPartyNoticesGenerator.Services;
 
@@ -73,9 +74,9 @@ namespace ThirdPartyNoticesGenerator
 
                 var licenseCount = 0;
                 var resolvedLibrariesCount = 0;
-                await foreach (var licenseInfo in _licenseInfoGenerator.GetLicensesForProject(project))
+                await foreach (var (licenseInfo, _, _, isLast) in _licenseInfoGenerator.GetLicensesForProject(project).WithIterationInfo())
                 {
-                    _licenseInfoWriter.WriteLicense(licenseInfo, writer);
+                    _licenseInfoWriter.WriteLicense(licenseInfo, writer, isLast);
                     await writer.FlushAsync();
                     resolvedLibrariesCount += licenseInfo.Libraries.Count;
                     licenseCount++;

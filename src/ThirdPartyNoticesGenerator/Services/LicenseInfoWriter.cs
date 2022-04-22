@@ -17,7 +17,7 @@ namespace ThirdPartyNoticesGenerator.Services
         private static readonly byte[] LicenseNoticeBytes = Encoding.GetBytes(LicenseNotice);
         private static readonly byte[] NewLine = { (byte) '\r', (byte) '\n' };
 
-        public void WriteLicense(LicenseForLibraries licenseForLibraries, IBufferWriter<byte> writer)
+        public void WriteLicense(LicenseForLibraries licenseForLibraries, IBufferWriter<byte> writer, bool isLast = false)
         {
             var encoder = Encoding.GetEncoder();
 
@@ -34,9 +34,13 @@ namespace ThirdPartyNoticesGenerator.Services
             }
             writer.Write(longestName, encoder);
             writer.Write(NewLine);
+            writer.Write(NewLine);
             writer.Write(licenseForLibraries.LicenseContent, encoder);
-            writer.Write(NewLine);
-            writer.Write(NewLine);
+            if (!isLast)
+            {
+                writer.Write(NewLine);
+                writer.Write(NewLine);
+            }
         }
     }
 }
