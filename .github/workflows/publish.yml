@@ -17,7 +17,7 @@ jobs:
 
     - name: Run _build
       run: >-
-        dotnet pack src/ThirdPartyNoticesGenerator.sln --configuration Release -o "./packages";
+        dotnet pack src/ThirdPartyNoticesGenerator/ThirdPartyNoticesGenerator.csproj --configuration Release -o "./packages";
       shell: pwsh
 
     - name: Run _build
