@@ -46,6 +46,8 @@ namespace ThirdPartyNoticesGenerator
                 _licenseInfoWriter = licenseInfoWriter ?? throw new ArgumentNullException(nameof(licenseInfoWriter));
             }
 
+            public int Invoke(InvocationContext context) => throw new NotSupportedException();
+
             public async Task<int> InvokeAsync(InvocationContext context)
             {
                 var scanDirectory = _options.ScanDir ?? Directory.GetCurrentDirectory();
