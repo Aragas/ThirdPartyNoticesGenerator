@@ -54,7 +54,7 @@ namespace ThirdPartyNoticesGenerator
                 _logger.LogInformation("Scanning directory '{Directory}'", scanDirectory);
                 if (Directory.GetFiles(scanDirectory, "*.*", SearchOption.TopDirectoryOnly).SingleOrDefault(x => MSBuildProjectTypes.Any(x.EndsWith)) is not { } projectFilePath)
                 {
-                    _logger.LogInformation("No C#, F#, or VisualBasic project file found in the current directory.");
+                    _logger.LogInformation("No C#, F#, or VisualBasic project file found in the current directory");
                     return 1;
                 }
 

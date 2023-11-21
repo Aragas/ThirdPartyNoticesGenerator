@@ -74,7 +74,7 @@ namespace ThirdPartyNoticesGenerator.Services
         {
             if (!projectInstance.Build("ComputeFilesToPublish", new Microsoft.Build.Framework.ILogger[] { new ConsoleLogger(LoggerVerbosity.Minimal) }))
             {
-                _logger.LogError("Failed to run task 'ComputeFilesToPublish'!");
+                _logger.LogError("Failed to run task 'ComputeFilesToPublish'! Please build the project in Release mode!");
                 yield break;
             }
 
