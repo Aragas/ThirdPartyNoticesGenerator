@@ -40,11 +40,15 @@ namespace ThirdPartyNoticesGenerator
                         client.BaseAddress = new Uri("https://api.github.com");
                         client.Timeout = TimeSpan.FromSeconds(3);
                         // https://developer.github.com/v3/#user-agent-required
-                        client.DefaultRequestHeaders.Add("User-Agent", "DotnetLicense");
+                        client.DefaultRequestHeaders.Add("User-Agent", "ThirdPartyNoticesGenerator");
                         if (!string.IsNullOrEmpty(opts.GitHubOAuth))
                         {
                             var basicAuthValue = Convert.ToBase64String(Encoding.ASCII.GetBytes(opts.GitHubOAuth));
                             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", basicAuthValue);
+                        }
+                        if (!string.IsNullOrEmpty(opts.GitHubToken))
+                        {
+                            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", opts.GitHubToken);
                         }
                     });
 

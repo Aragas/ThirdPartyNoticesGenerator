@@ -27,6 +27,7 @@ namespace ThirdPartyNoticesGenerator
             AddOption(new Option<bool>("--copy-to-project-outdir", () => false, "Copy to output directory in Release configuration"));
             AddOption(new Option<bool>("--use-unsafe-resolvers", () => false, "Enable unsafe license resolvers that can yield misleading licenses"));
             AddOption(new Option<string>("--github-oauth", () => string.Empty, "GitHub's OAuth string in the format of 'ClientId:ClientSecret'"));
+            AddOption(new Option<string>("--github-token", () => string.Empty, "GitHub's token"));
         }
 
         internal new class Handler : ICommandHandler

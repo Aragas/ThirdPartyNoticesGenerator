@@ -62,8 +62,8 @@ namespace ThirdPartyNoticesGenerator.Services
             var licenseUrl = packageReader.NuspecReader.GetLicenseUrl();
             var repositoryMetadata = packageReader.NuspecReader.GetRepositoryMetadata();
             var projectUrl = packageReader.NuspecReader.GetProjectUrl();
-
-            // The license in contained in the nupkg
+            
+            // The license contained in the nupkg
             if (licenseMetadata is not null && licenseMetadata.Type == LicenseType.File && !string.IsNullOrEmpty(licenseMetadata.License))
             {
                 await using var licenseStream = packageReader.GetEntry(licenseMetadata.License).Open();

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -29,7 +30,7 @@ namespace ThirdPartyNoticesGenerator.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while getting GitHub license! {LicenseId}", licenseId);
+                _logger.LogError(e, "Error while getting GitHub license! Repository: '{LicenseId}'", licenseId);
                 return null;
             }
         }
@@ -39,7 +40,13 @@ namespace ThirdPartyNoticesGenerator.Services
             try
             {
                 repositoryPath = repositoryPath.TrimEnd('/');
-                var json = await _httpClient.GetStringAsync($"repos{repositoryPath}/license{(string.IsNullOrEmpty(commit) ? string.Empty : $"?ref={commit}")}");
+                using var request = new HttpRequestMessage(HttpMethod.Get, $"repos{repositoryPath}/license{(string.IsNullOrEmpty(commit) ? string.Empty : $"?ref={commit}")}");
+                using var response = await _httpClient.SendAsync(request);
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return null;
+
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync();
                 var jsonDocument = JsonDocument.Parse(json);
 
                 var rootElement = jsonDocument.RootElement;
@@ -49,7 +56,7 @@ namespace ThirdPartyNoticesGenerator.Services
                 if (encoding != "base64") return content;
                 if (content is null)
                 {
-                    _logger.LogError("Error while getting GitHub license! Content was null! {RepositoryPath}", repositoryPath);
+                    _logger.LogError("Error while getting GitHub license! Content was null! Repository: '{RepositoryPath}'", repositoryPath);
                     return null;
                 }
 
@@ -58,7 +65,7 @@ namespace ThirdPartyNoticesGenerator.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while getting GitHub license! {RepositoryPath}", repositoryPath);
+                _logger.LogError(e, "Error while getting GitHub license! Repository: '{RepositoryPath}'", repositoryPath);
                 return null;
             }
         }
