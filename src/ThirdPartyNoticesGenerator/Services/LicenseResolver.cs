@@ -66,7 +66,9 @@ namespace ThirdPartyNoticesGenerator.Services
             // The license contained in the nupkg
             if (licenseMetadata is not null && licenseMetadata.Type == LicenseType.File && !string.IsNullOrEmpty(licenseMetadata.License))
             {
-                await using var licenseStream = packageReader.GetEntry(licenseMetadata.License).Open();
+                var licensePath = licenseMetadata.License.Replace('\\', '/');
+                var hasLicense = packageReader.GetFiles().Any(x => x.Equals(licensePath));
+                await using var licenseStream = hasLicense ? packageReader.GetEntry(licensePath).Open() : Stream.Null;
                 using var licenseStreamReader = new StreamReader(licenseStream);
                 var license = await licenseStreamReader.ReadToEndAsync();
                 if (!string.IsNullOrEmpty(license)) return license;

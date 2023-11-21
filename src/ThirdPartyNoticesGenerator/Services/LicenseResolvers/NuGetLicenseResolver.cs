@@ -5,11 +5,11 @@ namespace ThirdPartyNoticesGenerator.Services.LicenseResolvers
 {
     internal sealed class NuGetLicenseResolver : ILicenseUriLicenseResolver
     {
-        private readonly GitHubAPIClient _gitHubClient;
+        private readonly NuGetLicenseClient _nugetLicenseClient;
 
-        public NuGetLicenseResolver(GitHubAPIClient gitHubClient)
+        public NuGetLicenseResolver(NuGetLicenseClient nugetLicenseClient)
         {
-            _gitHubClient = gitHubClient ?? throw new ArgumentNullException(nameof(gitHubClient));
+            _nugetLicenseClient = nugetLicenseClient ?? throw new ArgumentNullException(nameof(nugetLicenseClient));
         }
 
         public bool IsSafe => true;
@@ -21,7 +21,7 @@ namespace ThirdPartyNoticesGenerator.Services.LicenseResolvers
             var split = licenseUri.AbsolutePath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (split.Length <= 0) return Task.FromResult<string?>(null);
             var licenseId = split[0];
-            return _gitHubClient.GetLicenseContentFromId(licenseId);
+            return _nugetLicenseClient.GetLicenseContentFromId(licenseId);
         }
     }
 }

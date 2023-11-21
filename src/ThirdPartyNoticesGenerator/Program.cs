@@ -51,6 +51,13 @@ namespace ThirdPartyNoticesGenerator
                             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", opts.GitHubToken);
                         }
                     });
+                    services.AddHttpClient<NuGetLicenseClient>().ConfigureHttpClient((sp, client) =>
+                    {
+                        client.BaseAddress = new Uri("https://licenses.nuget.org/");
+                        client.Timeout = TimeSpan.FromSeconds(3);
+                        // https://developer.github.com/v3/#user-agent-required
+                        client.DefaultRequestHeaders.Add("User-Agent", "ThirdPartyNoticesGenerator");
+                    });
 
                     services.AddHttpClient<UrlRedirectResolver>()
                         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });

@@ -30,7 +30,7 @@ namespace ThirdPartyNoticesGenerator.Services
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error while getting GitHub license! Repository: '{LicenseId}'", licenseId);
+                _logger.LogError(e, "Error while getting GitHub license! License Id: '{LicenseId}'", licenseId);
                 return null;
             }
         }
