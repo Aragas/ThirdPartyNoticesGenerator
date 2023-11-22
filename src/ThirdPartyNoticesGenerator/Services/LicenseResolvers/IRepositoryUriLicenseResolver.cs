@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ThirdPartyNoticesGenerator.Services.LicenseResolvers
@@ -7,6 +8,6 @@ namespace ThirdPartyNoticesGenerator.Services.LicenseResolvers
     {
         bool IsSafe { get; }
         bool CanResolve(Uri sourceUri);
-        Task<string?> Resolve(string type, Uri sourceUri, string commit);
+        Task<string?> ResolveAsync(string type, Uri sourceUri, string commit, CancellationToken ct);
     }
 }

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ThirdPartyNoticesGenerator.Services
@@ -20,11 +21,11 @@ namespace ThirdPartyNoticesGenerator.Services
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task<string?> GetLicenseContentFromId(string licenseId)
+        public async Task<string?> GetLicenseContentFromIdAsync(string licenseId, CancellationToken ct)
         {
             try
             {
-                var json = await _httpClient.GetStringAsync($"licenses/{licenseId}");
+                var json = await _httpClient.GetStringAsync($"licenses/{licenseId}", ct);
                 var jsonDocument = JsonDocument.Parse(json);
                 return jsonDocument.RootElement.GetProperty("body").GetString();
             }
@@ -35,18 +36,18 @@ namespace ThirdPartyNoticesGenerator.Services
             }
         }
 
-        public async Task<string?> GetLicenseContentFromRepositoryPath(string repositoryPath, string? commit = null)
+        public async Task<string?> GetLicenseContentFromRepositoryPathAsync(string repositoryPath, string? commit = null, CancellationToken ct = default)
         {
             try
             {
                 repositoryPath = repositoryPath.TrimEnd('/');
                 using var request = new HttpRequestMessage(HttpMethod.Get, $"repos{repositoryPath}/license{(string.IsNullOrEmpty(commit) ? string.Empty : $"?ref={commit}")}");
-                using var response = await _httpClient.SendAsync(request);
+                using var response = await _httpClient.SendAsync(request, ct);
                 if (response.StatusCode == HttpStatusCode.NotFound)
                     return null;
 
                 response.EnsureSuccessStatusCode();
-                var json = await response.Content.ReadAsStringAsync();
+                var json = await response.Content.ReadAsStringAsync(ct);
                 var jsonDocument = JsonDocument.Parse(json);
 
                 var rootElement = jsonDocument.RootElement;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ThirdPartyNoticesGenerator.Extensions;
@@ -24,14 +25,14 @@ namespace ThirdPartyNoticesGenerator.Services.LicenseResolvers
         bool IProjectUriLicenseResolver.CanResolve(Uri uri) => uri.IsGithubUri();
         bool IRepositoryUriLicenseResolver.CanResolve(Uri uri) => uri.IsGithubUri();
 
-        Task<string?> ILicenseUriLicenseResolver.Resolve(Uri licenseUri) => _urlPlainTextResolver.GetPlainText(licenseUri.ToRawGithubUserContentUri());
-        Task<string?> IProjectUriLicenseResolver.Resolve(Uri projectUri) => _gitHubClient.GetLicenseContentFromRepositoryPath(projectUri.AbsolutePath);
-        Task<string?> IRepositoryUriLicenseResolver.Resolve(string type, Uri sourceUri, string commit)
+        Task<string?> ILicenseUriLicenseResolver.ResolveAsync(Uri licenseUri, CancellationToken ct) => _urlPlainTextResolver.GetPlainTextAsync(licenseUri.ToRawGithubUserContentUri(), ct);
+        Task<string?> IProjectUriLicenseResolver.ResolveAsync(Uri projectUri, CancellationToken ct) => _gitHubClient.GetLicenseContentFromRepositoryPathAsync(projectUri.AbsolutePath, ct: ct);
+        Task<string?> IRepositoryUriLicenseResolver.ResolveAsync(string type, Uri sourceUri, string commit, CancellationToken ct)
         {
             var split = sourceUri.AbsolutePath.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
             if (split.Length != 2) return Task.FromResult<string?>(null);
             var repositoryPath = $"/{split[0]}/{split[1].Replace(".git", string.Empty)}";
-            return _gitHubClient.GetLicenseContentFromRepositoryPath(repositoryPath, commit);
+            return _gitHubClient.GetLicenseContentFromRepositoryPathAsync(repositoryPath, commit, ct);
         }
     }
 }

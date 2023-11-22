@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ThirdPartyNoticesGenerator.Options;
@@ -54,7 +55,7 @@ namespace ThirdPartyNoticesGenerator.Services
         /// * Generic LicenseUrl
         /// * ProjectUrl based License
         /// </summary>
-        public async Task<string?> ResolveLicense(PackageArchiveReader packageReader)
+        public async Task<string?> ResolveLicenseAsync(PackageArchiveReader packageReader, CancellationToken ct)
         {
             if (packageReader is null) throw new ArgumentNullException(nameof(packageReader));
 
@@ -70,7 +71,11 @@ namespace ThirdPartyNoticesGenerator.Services
                 var hasLicense = packageReader.GetFiles().Any(x => x.Equals(licensePath));
                 await using var licenseStream = hasLicense ? packageReader.GetEntry(licensePath).Open() : Stream.Null;
                 using var licenseStreamReader = new StreamReader(licenseStream);
+#if NET7_0_OR_GREATER
+                var license = await licenseStreamReader.ReadToEndAsync(ct);
+#else
                 var license = await licenseStreamReader.ReadToEndAsync();
+#endif
                 if (!string.IsNullOrEmpty(license)) return license;
             }
 
@@ -80,21 +85,21 @@ namespace ThirdPartyNoticesGenerator.Services
                 var type = repositoryMetadata.Type;
                 var url = repositoryMetadata.Url;
                 var commit = repositoryMetadata.Commit;
-                var license = await _licenseCache.GetOrCreateAsync($"{url}/{commit}", async _ => await ResolveLicenseFromRepositoryUri(type, new Uri(url), commit));
+                var license = await _licenseCache.GetOrCreateAsync($"{url}/{commit}", async _ => await ResolveLicenseFromRepositoryUriAsync(type, new Uri(url), commit, ct));
                 if (!string.IsNullOrEmpty(license)) return license;
             }
 
             // Try to get the generic/concrete license from license url
             if (!string.IsNullOrEmpty(licenseUrl))
             {
-                var license = await _licenseCache.GetOrCreateAsync(licenseUrl, async _ => await ResolveLicenseFromLicenseUri(new Uri(licenseUrl)));
+                var license = await _licenseCache.GetOrCreateAsync(licenseUrl, async _ => await ResolveLicenseFromLicenseUriAsync(new Uri(licenseUrl), ct));
                 if (!string.IsNullOrEmpty(license)) return license;
             }
 
             // License from the repository default branch
             if (!string.IsNullOrEmpty(projectUrl))
             {
-                var license = await _licenseCache.GetOrCreateAsync(projectUrl, async _ => await ResolveLicenseFromProjectUri(new Uri(projectUrl)));
+                var license = await _licenseCache.GetOrCreateAsync(projectUrl, async _ => await ResolveLicenseFromProjectUriAsync(new Uri(projectUrl), ct));
                 if (!string.IsNullOrEmpty(license)) return license;
             }
 
@@ -122,14 +127,14 @@ namespace ThirdPartyNoticesGenerator.Services
             return resolver != null;
         }
 
-        private async Task<string?> ResolveLicenseFromLicenseUri(Uri licenseUri)
+        private async Task<string?> ResolveLicenseFromLicenseUriAsync(Uri licenseUri, CancellationToken ct)
         {
             while (true)
             {
                 if (TryFindLicenseUriLicenseResolver(licenseUri, out var licenseUriLicenseResolver))
-                    return await licenseUriLicenseResolver.Resolve(licenseUri);
+                    return await licenseUriLicenseResolver.ResolveAsync(licenseUri, ct);
 
-                var redirectUri = await _urlRedirectResolver.GetRedirectUri(licenseUri);
+                var redirectUri = await _urlRedirectResolver.GetRedirectUriAsync(licenseUri, ct);
                 if (redirectUri != null)
                 {
                     licenseUri = redirectUri;
@@ -137,18 +142,18 @@ namespace ThirdPartyNoticesGenerator.Services
                 }
 
                 // Finally, if no license uri can be found despite all the redirects, try to blindly get it
-                return await _urlPlainTextResolver.GetPlainText(licenseUri);
+                return await _urlPlainTextResolver.GetPlainTextAsync(licenseUri, ct);
             }
         }
 
-        private async Task<string?> ResolveLicenseFromRepositoryUri(string type, Uri sourceUri, string commit)
+        private async Task<string?> ResolveLicenseFromRepositoryUriAsync(string type, Uri sourceUri, string commit, CancellationToken ct)
         {
             while (true)
             {
                 if (TryFindRepositoryUriLicenseResolver(sourceUri, out var repositoryUriLicenseResolver))
-                    return await repositoryUriLicenseResolver.Resolve(type, sourceUri, commit);
+                    return await repositoryUriLicenseResolver.ResolveAsync(type, sourceUri, commit, ct);
 
-                var redirectUri = await _urlRedirectResolver.GetRedirectUri(sourceUri);
+                var redirectUri = await _urlRedirectResolver.GetRedirectUriAsync(sourceUri, ct);
                 if (redirectUri != null)
                 {
                     sourceUri = redirectUri;
@@ -159,14 +164,14 @@ namespace ThirdPartyNoticesGenerator.Services
             }
         }
 
-        private async Task<string?> ResolveLicenseFromProjectUri(Uri projectUri)
+        private async Task<string?> ResolveLicenseFromProjectUriAsync(Uri projectUri, CancellationToken ct)
         {
             while (true)
             {
                 if (TryFindProjectUriLicenseResolver(projectUri, out var projectUriLicenseResolver))
-                    return await projectUriLicenseResolver.Resolve(projectUri);
+                    return await projectUriLicenseResolver.ResolveAsync(projectUri, ct);
 
-                var redirectUri = await _urlRedirectResolver.GetRedirectUri(projectUri);
+                var redirectUri = await _urlRedirectResolver.GetRedirectUriAsync(projectUri, ct);
                 if (redirectUri != null)
                 {
                     projectUri = redirectUri;

@@ -2,6 +2,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ThirdPartyNoticesGenerator.Services
@@ -17,11 +18,11 @@ namespace ThirdPartyNoticesGenerator.Services
             _httpClient = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public async Task<Uri?> GetRedirectUri(Uri uri)
+        public async Task<Uri?> GetRedirectUriAsync(Uri uri, CancellationToken ct)
         {
             try
             {
-                var httpResponseMessage = await _httpClient.GetAsync(uri);
+                var httpResponseMessage = await _httpClient.GetAsync(uri, ct);
 
                 var statusCode = (int) httpResponseMessage.StatusCode;
                 if (statusCode is < 300 or > 399)

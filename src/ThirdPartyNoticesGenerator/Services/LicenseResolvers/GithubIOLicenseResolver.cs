@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ThirdPartyNoticesGenerator.Extensions;
@@ -22,7 +23,7 @@ namespace ThirdPartyNoticesGenerator.Services.LicenseResolvers
         bool ILicenseUriLicenseResolver.CanResolve(Uri uri) => uri.IsGithubIOUri();
         bool IProjectUriLicenseResolver.CanResolve(Uri uri) => uri.IsGithubIOUri();
 
-        Task<string?> ILicenseUriLicenseResolver.Resolve(Uri licenseUri) => _urlPlainTextResolver.GetPlainText(licenseUri.ToRawGithubUserContentUri());
-        Task<string?> IProjectUriLicenseResolver.Resolve(Uri projectUri) => _gitHubClient.GetLicenseContentFromRepositoryPath($"/{projectUri.Host.Split('.')[0]}{projectUri.AbsolutePath}");
+        Task<string?> ILicenseUriLicenseResolver.ResolveAsync(Uri licenseUri, CancellationToken ct) => _urlPlainTextResolver.GetPlainTextAsync(licenseUri.ToRawGithubUserContentUri(), ct);
+        Task<string?> IProjectUriLicenseResolver.ResolveAsync(Uri projectUri, CancellationToken ct) => _gitHubClient.GetLicenseContentFromRepositoryPathAsync($"/{projectUri.Host.Split('.')[0]}{projectUri.AbsolutePath}", ct: ct);
     }
 }

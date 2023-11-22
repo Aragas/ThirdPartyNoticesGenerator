@@ -51,6 +51,8 @@ namespace ThirdPartyNoticesGenerator
 
             public async Task<int> InvokeAsync(InvocationContext context)
             {
+                var ct = context.GetCancellationToken();
+                
                 var scanDirectory = _options.ScanDir ?? Directory.GetCurrentDirectory();
                 _logger.LogInformation("Scanning directory '{Directory}'", scanDirectory);
                 if (Directory.GetFiles(scanDirectory, "*.*", SearchOption.TopDirectoryOnly).SingleOrDefault(x => MSBuildProjectTypes.Any(x.EndsWith)) is not { } projectFilePath)
@@ -77,10 +79,10 @@ namespace ThirdPartyNoticesGenerator
 
                 var licenseCount = 0;
                 var resolvedLibrariesCount = 0;
-                await foreach (var (licenseInfo, _, _, isLast) in _licenseInfoGenerator.GetLicensesForProject(project).WithIterationInfo())
+                await foreach (var (licenseInfo, _, _, isLast) in _licenseInfoGenerator.GetLicensesForProjectAsync(project, ct).WithIterationInfo().WithCancellation(ct))
                 {
                     _licenseInfoWriter.WriteLicense(licenseInfo, writer, isLast);
-                    await writer.FlushAsync();
+                    await writer.FlushAsync(ct);
                     resolvedLibrariesCount += licenseInfo.Libraries.Count;
                     licenseCount++;
                 }

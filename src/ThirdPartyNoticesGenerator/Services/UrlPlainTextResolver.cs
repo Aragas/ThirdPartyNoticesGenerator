@@ -2,6 +2,7 @@
 
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ThirdPartyNoticesGenerator.Services
@@ -17,17 +18,17 @@ namespace ThirdPartyNoticesGenerator.Services
             _httpClient = client ?? throw new ArgumentNullException(nameof(client));
         }
 
-        public async Task<string?> GetPlainText(Uri uri)
+        public async Task<string?> GetPlainTextAsync(Uri uri, CancellationToken ct)
         {
             try
             {
-                var httpResponseMessage = await _httpClient.GetAsync(uri);
+                var httpResponseMessage = await _httpClient.GetAsync(uri, ct);
                 if (!httpResponseMessage.IsSuccessStatusCode && uri.AbsolutePath.EndsWith(".txt"))
                 {
                     // try without .txt extension
                     var fixedUri = new UriBuilder(uri);
                     fixedUri.Path = fixedUri.Path.Remove(fixedUri.Path.Length - 4);
-                    httpResponseMessage = await _httpClient.GetAsync(fixedUri.Uri);
+                    httpResponseMessage = await _httpClient.GetAsync(fixedUri.Uri, ct);
                     if (!httpResponseMessage.IsSuccessStatusCode)
                         return null;
                 }
@@ -35,7 +36,7 @@ namespace ThirdPartyNoticesGenerator.Services
                 if (httpResponseMessage.Content.Headers.ContentType?.MediaType != "text/plain")
                     return uri.ToString();
 
-                return await httpResponseMessage.Content.ReadAsStringAsync();
+                return await httpResponseMessage.Content.ReadAsStringAsync(ct);
             }
             catch (Exception e)
             {
