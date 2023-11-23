@@ -39,6 +39,7 @@ For avoiding GitHub's API Rate Limit:
 
 ```
 thirdpartynoticesgenerator --github-oauth CLIENT_ID:CLIENT_SECRET
+thirdpartynoticesgenerator --github-token TOKEN
 ```
 
 ## How it works
